@@ -1,4 +1,7 @@
-﻿using Spectre.Console;
+﻿using RestaurantManager.Controllers;
+using Spectre.Console;
+
+var app = new AppController();
 
 AnsiConsole.Write(
     new FigletText("Restaurant Manager")
