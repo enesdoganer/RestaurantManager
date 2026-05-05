@@ -1,0 +1,62 @@
+using Microsoft.EntityFrameworkCore;
+using RestaurantManager.Core.Models;
+
+namespace RestaurantManager.Core.Data;
+
+public class RestaurantDbContext : DbContext
+{
+    public DbSet<Table> Tables { get; set; }
+    public DbSet<MenuItem> MenuItems { get; set; }
+    public DbSet<Order> Orders { get; set; }
+    public DbSet<OrderItem> OrderItems { get; set; }
+
+    public RestaurantDbContext(DbContextOptions<RestaurantDbContext> options)
+        : base(options) { }
+
+    protected override void OnModelCreating(ModelBuilder modelBuilder)
+    {
+        // Table
+        modelBuilder.Entity<Table>(e =>
+        {
+            e.HasKey(t => t.Id);
+            e.Property(t => t.Id).ValueGeneratedNever();
+        });
+
+        // MenuItem
+        modelBuilder.Entity<MenuItem>(e =>
+        {
+            e.HasKey(m => m.Id);
+            e.Property(m => m.Id).ValueGeneratedNever();
+            e.Property(m => m.Price).HasColumnType("numeric(10,2)");
+            e.Property(m => m.Allergens)
+                .HasConversion(
+                    v => string.Join(',', v.Select(a => a.ToString())),
+                    v => v.Split(',', StringSplitOptions.RemoveEmptyEntries)
+                        .Select(a => Enum.Parse<Allergen>(a))
+                        .ToList());
+        });
+
+        // Order
+        modelBuilder.Entity<Order>(e =>
+        {
+            e.HasKey(o => o.Id);
+            e.Ignore(o => o.TotalPrice);
+            e.HasOne<Table>()
+                .WithMany()
+                .HasForeignKey(o => o.TableId);
+            e.HasMany(o => o.Items)
+                .WithOne()
+                .HasForeignKey(oi => oi.OrderId);
+        });
+
+        // OrderItem
+        modelBuilder.Entity<OrderItem>(e =>
+        {
+            e.HasKey(oi => oi.Id);
+            e.Property(oi => oi.Id).ValueGeneratedOnAdd();
+            e.HasOne(oi => oi.MenuItem)
+                .WithMany()
+                .HasForeignKey(oi => oi.MenuItemId);
+        });
+    }
+}

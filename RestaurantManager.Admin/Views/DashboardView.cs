@@ -1,9 +1,8 @@
-using RestaurantManager.Models;
 using Spectre.Console;
 using SpectreTable = Spectre.Console.Table;
-using Table = RestaurantManager.Models.Table;
+using Table = RestaurantManager.Core.Models.Table;
 
-namespace RestaurantManager.Views;
+namespace RestaurantManager.Admin.Views;
 
 public class DashboardView
 {
@@ -17,7 +16,7 @@ public class DashboardView
         AnsiConsole.WriteLine();
         var table = new SpectreTable()
             .Border(TableBorder.Rounded)
-            .BorderColor(Color.Aqua)
+            .BorderColor(Color.Blue)
             .AddColumns(new TableColumn("[bold]Table[/]").Centered(), 
                         new TableColumn("[bold]Seats[/]").Centered(),
                         new TableColumn("[bold]Status[/]").Centered(),

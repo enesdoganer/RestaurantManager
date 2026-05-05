@@ -1,14 +1,13 @@
-using RestaurantManager.Models;
+using RestaurantManager.Core.Models;
 using Spectre.Console;
 using SpectreTable = Spectre.Console.Table;
 
-namespace RestaurantManager.Views;
+namespace RestaurantManager.Admin.Views;
 
 public class OrderView
 {
     public static void Render(Order order)
     {
-        AnsiConsole.Clear();
         AnsiConsole.MarkupLine($"[bold green]Order #{order.Id}[/] — Table {order.TableId}\n");
 
         var statusColor = order.Status switch
@@ -54,14 +53,15 @@ public class OrderView
     public static void RenderAllOrders(List<Order> orders)
     {
         AnsiConsole.Clear();
-        AnsiConsole.MarkupLine("[orange]Active Orders[/]\n");
+        AnsiConsole.MarkupLine("[red]Active Orders[/]\n");
 
         if (orders.Count == 0)
         {
             AnsiConsole.MarkupLine("[white]No active orders.[/]");
             return;
         }
-
+        
+        AnsiConsole.Clear();
         foreach (var order in orders)
             Render(order);
     }

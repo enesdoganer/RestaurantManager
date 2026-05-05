@@ -1,4 +1,4 @@
-namespace RestaurantManager.Models;
+namespace RestaurantManager.Core.Models;
 
 public class MenuItem
 {
@@ -8,6 +8,8 @@ public class MenuItem
     public List<Allergen> Allergens { get; set; }
     public decimal Price { get; set; }
     public string Category { get; set; }
+    
+    public MenuItem() { }
 
     public MenuItem(int id, string name, string ingredients, List<Allergen> allergens, decimal price, string category)
     {

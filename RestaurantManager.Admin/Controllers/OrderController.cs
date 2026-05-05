@@ -1,6 +1,6 @@
-using RestaurantManager.Models;
+using RestaurantManager.Core.Models;
 
-namespace RestaurantManager.Controllers;
+namespace RestaurantManager.Admin.Controllers;
 
 public class OrderController
 {

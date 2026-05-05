@@ -1,8 +1,8 @@
-using RestaurantManager.Models;
+using RestaurantManager.Core.Models;
 using Spectre.Console;
 using SpectreTable = Spectre.Console.Table;
 
-namespace RestaurantManager.Views;
+namespace RestaurantManager.Admin.Views;
 
 public class MenuView
 {
@@ -17,8 +17,8 @@ public class MenuView
         {
             var table = new SpectreTable()
                 .Border(TableBorder.Simple)
-                .BorderColor(Color.BlueViolet)
-                .Title($"[orange]{c}[/]")
+                .BorderColor(Color.Blue)
+                .Title($"[blue]{c}[/]")
                 .AddColumn(new TableColumn("[bold]#[/]").Centered())
                 .AddColumn(new TableColumn("[bold]Name[/]"))
                 .AddColumn(new TableColumn("[bold]Ingredients[/]"))
@@ -48,7 +48,7 @@ public class MenuView
     public static (MenuItem item, int quantity) PromptItemSelection(List<MenuItem> items)
     {
         var choices = items
-            .Select(i => $"[{i.Id}] {i.Name} — ${i.Price:F2}")
+            .Select(i => $"{i.Id}. {i.Name} — ${i.Price:F2}")
             .ToList();
 
         var selected = AnsiConsole.Prompt(
@@ -56,7 +56,7 @@ public class MenuView
                 .Title("Select an [green]item[/] to add:")
                 .AddChoices(choices));
         
-        var id = int.Parse(selected.Split(']')[0].TrimStart('['));
+        var id = int.Parse(selected.Split('.')[0]);
         var menuItem = items.First(i => i.Id == id);
 
         var quantity = AnsiConsole.Prompt(
