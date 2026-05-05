@@ -1,5 +1,8 @@
-bin/
-obj/
+RestaurantManager.Admin/obj
+RestaurantManager.Admin/bin
+RestaurantManager.Core/obj
+RestaurantManager.Core/bin
+**/appsettings.json
 /packages/
 riderModule.iml
 /_ReSharper.Caches/

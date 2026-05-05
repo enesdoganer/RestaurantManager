@@ -1,11 +1,21 @@
-﻿using RestaurantManager.Core.Data;
+﻿using System.Diagnostics;
+using RestaurantManager.Core.Data;
 using RestaurantManager.Core.Services;
 using RestaurantManager.Core.Models;
 using RestaurantManager.Admin.Views;
 using Spectre.Console;
+using Microsoft.Extensions.Configuration;
+
+// Get connection string from appsettings.json
+var config = new ConfigurationBuilder()
+    .SetBasePath(AppContext.BaseDirectory)
+    .AddJsonFile("appsettings.json", optional: false)
+    .Build();
+var connectionString = config.GetConnectionString("DefaultConnection")
+                       ?? throw new Exception("Connection string not found.");
 
 // Create db and create the tables if they do not exist:
-var db = DbContextFactory.Create("Host=localhost;Database=restaurant_db;Username=postgres;Password=Tolkopomni265*");
+var db = DbContextFactory.Create(connectionString);
 db.Database.EnsureCreated();
 
 // Seed initial data
