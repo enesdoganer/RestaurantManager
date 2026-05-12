@@ -3,14 +3,14 @@ using RestaurantManager.Core.Models;
 
 namespace RestaurantManager.Core.Data;
 
-public class RestaurantDbContext : DbContext
+public class DbContext : Microsoft.EntityFrameworkCore.DbContext
 {
     public DbSet<Table> Tables { get; set; }
     public DbSet<MenuItem> MenuItems { get; set; }
     public DbSet<Order> Orders { get; set; }
     public DbSet<OrderItem> OrderItems { get; set; }
 
-    public RestaurantDbContext(DbContextOptions<RestaurantDbContext> options)
+    public DbContext(DbContextOptions<DbContext> options)
         : base(options) { }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -41,6 +41,10 @@ public class RestaurantDbContext : DbContext
         {
             e.HasKey(o => o.Id);
             e.Ignore(o => o.TotalPrice);
+            e.Property(o => o.CreatedAt)
+                .HasConversion<DateTime>(
+                    v => v.ToUniversalTime(),
+                    v => DateTime.SpecifyKind(v, DateTimeKind.Utc));
             e.HasOne<Table>()
                 .WithMany()
                 .HasForeignKey(o => o.TableId);

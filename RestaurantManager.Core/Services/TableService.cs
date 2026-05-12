@@ -1,14 +1,15 @@
 using Microsoft.EntityFrameworkCore;
 using RestaurantManager.Core.Data;
 using RestaurantManager.Core.Models;
+using DbContext = RestaurantManager.Core.Data.DbContext;
 
 namespace RestaurantManager.Core.Services;
 
 public class TableService
 {
-    private readonly RestaurantDbContext _context;
+    private readonly DbContext _context;
 
-    public TableService(RestaurantDbContext context)
+    public TableService(DbContext context)
     {
         _context = context;
     }

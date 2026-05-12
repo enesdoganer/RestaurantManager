@@ -4,7 +4,7 @@ namespace RestaurantManager.Core.Data;
 
 public static class DbSeeder
 {
-    public static void Seed(RestaurantDbContext context)
+    public static void Seed(DbContext context)
     {
         if (context.Tables.Any() || context.MenuItems.Any())
             return; // Already seeded

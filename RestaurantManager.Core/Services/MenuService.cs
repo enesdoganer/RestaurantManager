@@ -5,9 +5,9 @@ namespace RestaurantManager.Core.Services;
 
 public class MenuService
 {
-    private readonly RestaurantDbContext _context;
+    private readonly DbContext _context;
 
-    public MenuService(RestaurantDbContext context)
+    public MenuService(DbContext context)
     {
         _context = context;
     }

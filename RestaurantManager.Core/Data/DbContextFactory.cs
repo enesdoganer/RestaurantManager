@@ -4,12 +4,12 @@ namespace RestaurantManager.Core.Data;
 
 public static class DbContextFactory
 {
-    public static RestaurantDbContext Create(string connectionString)
+    public static DbContext Create(string connectionString)
     {
-        var options = new DbContextOptionsBuilder<RestaurantDbContext>()
+        var options = new DbContextOptionsBuilder<DbContext>()
             .UseNpgsql(connectionString)
             .Options;
 
-        return new RestaurantDbContext(options);
+        return new DbContext(options);
     }
 }
