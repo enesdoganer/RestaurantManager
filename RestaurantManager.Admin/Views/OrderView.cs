@@ -8,7 +8,7 @@ public class OrderView
 {
     public static void Render(Order order)
     {
-        AnsiConsole.MarkupLine($"[bold green]Order #{order.Id}[/] — Table {order.TableId}\n");
+        AnsiConsole.MarkupLine($"[cornflowerblue]Order #{order.Id}[/] — Table {order.TableId}\n");
 
         var statusColor = order.Status switch
         {
@@ -53,7 +53,7 @@ public class OrderView
     public static void RenderAllOrders(List<Order> orders)
     {
         AnsiConsole.Clear();
-        AnsiConsole.MarkupLine("[red]Active Orders[/]\n");
+        AnsiConsole.MarkupLine("[red]Active Orders...[/]\n");
 
         if (orders.Count == 0)
         {
@@ -62,6 +62,7 @@ public class OrderView
         }
         
         AnsiConsole.Clear();
+        AnsiConsole.MarkupLine(" — [yellow]View All Active Orders[/] — \n");
         foreach (var order in orders)
             Render(order);
     }

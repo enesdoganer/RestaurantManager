@@ -12,7 +12,7 @@ public class DashboardView
         AnsiConsole.Write(
             new FigletText("Restaurant Manager")
                 .Centered()
-                .Color(Color.Green));
+                .Color(Color.MediumPurple));
         AnsiConsole.WriteLine();
         var table = new SpectreTable()
             .Border(TableBorder.Rounded)
@@ -41,16 +41,23 @@ public class DashboardView
     }
 
     // returns the id of the chosen table
-    public static int PromptTableSelection(List<Table> tables)
+    public static int? PromptTableSelection(List<Table> tables)
     {
+        const string backOption = "<- Back";
+        
         var choices = tables
             .Select(t => $"Table {t.Id} ({t.Seats} seats) - {(t.Available ? "Free" : "Occupied")}")
             .ToList();
+        choices.Insert(0, backOption);
 
         var selected = AnsiConsole.Prompt(
             new SelectionPrompt<string>()
                 .Title("Select a [purple]table[/]:")
-                .AddChoices(choices));
+                .AddChoices(choices)
+                .WrapAround(true));
+        
+        if (selected == backOption) return null;
+        
         return int.Parse(selected.Split(' ')[1]);
     }
     

@@ -15,7 +15,7 @@ public class TableService
     }
 
     public List<Table> GetAllTables() =>
-        _context.Tables.ToList();
+        _context.Tables.AsSorted().ToList();
 
     public Table? GetById(int id) =>
         _context.Tables.FirstOrDefault(t => t.Id == id);

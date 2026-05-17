@@ -5,10 +5,10 @@ namespace RestaurantManager.Core.Models;
 
 public class Order
 {
-    public int Id { get; set; }
-    public int TableId { get; set; }
+    public int Id { get; init; }
+    public int TableId { get; init; }
     public List<OrderItem> Items { get; set; } = new List<OrderItem>();
-    public DateTime CreatedAt { get; set; } = DateTime.Now;
+    public DateTime CreatedAt { get; init; } = DateTime.Now;
     public OrderStatus Status { get; set; } = OrderStatus.Pending;
     
     [NotMapped]

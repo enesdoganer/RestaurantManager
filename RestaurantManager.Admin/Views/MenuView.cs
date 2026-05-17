@@ -9,17 +9,17 @@ public class MenuView
     public static void Render(List<MenuItem> items)
     {
         AnsiConsole.Clear();
-        AnsiConsole.MarkupLine("[yellow]Menu[/]\n");
+        AnsiConsole.MarkupLine(" — [yellow]View Menu[/] — \n");
 
         var categories = items.Select(i => i.Category).Distinct().ToList();
 
         foreach (var c in categories)
         {
             var table = new SpectreTable()
-                .Border(TableBorder.Simple)
+                .Border(TableBorder.Square)
                 .BorderColor(Color.Blue)
-                .Title($"[blue]{c}[/]")
-                .AddColumn(new TableColumn("[bold]#[/]").Centered())
+                .Title($"[bold blue]{c}[/]")
+                .AddColumn(new TableColumn("[bold deepskyblue1]#[/]").Centered())
                 .AddColumn(new TableColumn("[bold]Name[/]"))
                 .AddColumn(new TableColumn("[bold]Ingredients[/]"))
                 .AddColumn(new TableColumn("[bold]Allergens[/]"))
@@ -27,14 +27,18 @@ public class MenuView
 
             foreach (var i in items.Where(i => i.Category == c))
             {
-                var allergens = i.Allergens.Count > 0
+                var allergens = i.Allergens != null && i.Allergens.Count > 0
                     ? string.Join(", ", i.Allergens.Select(a => a.ToString()))
+                    : "[grey] - [/]";
+                
+                var ingredients = i.Ingredients != null && i.Ingredients.Count > 0
+                    ? string.Join(", ", i.Ingredients.Select(a => a.ToString()))
                     : "[grey] - [/]";
 
                 table.AddRow(
-                    i.Id.ToString(),
+                    $"[deepskyblue1]{i.Id.ToString()}[/]",
                     i.Name,
-                    i.Ingredients,
+                    ingredients,
                     allergens,
                     $"[green]${i.Price:F2}[/]"
                 );
@@ -45,28 +49,54 @@ public class MenuView
         }
     }
 
-    public static (MenuItem item, int quantity) PromptItemSelection(List<MenuItem> items)
+    public static (MenuItem? item, int quantity) PromptItemSelection(List<MenuItem> items)
     {
-        var choices = items
-            .Select(i => $"{i.Id}. {i.Name} — ${i.Price:F2}")
+        const string backOption = "<- Back";
+        
+        var categoryChoices = items
+            .Select(i => i.Category)
+            .Distinct()
             .ToList();
-
-        var selected = AnsiConsole.Prompt(
-            new SelectionPrompt<string>()
-                .Title("Select an [green]item[/] to add:")
-                .AddChoices(choices));
         
-        var id = int.Parse(selected.Split('.')[0]);
-        var menuItem = items.First(i => i.Id == id);
+        categoryChoices.Insert(0, backOption);
 
-        var quantity = AnsiConsole.Prompt(
-            new TextPrompt<int>("How many?")
-                .DefaultValue(1)
-                .ValidationErrorMessage("[red]Please enter a valid number[/]")
-                .Validate(q => q > 0
-                    ? ValidationResult.Success()
-                    : ValidationResult.Error("[red]Quantity must be at least 1[/]")));
-        
-        return (menuItem, quantity);
+        while (true)
+        {
+            var selectedCategory = AnsiConsole.Prompt(
+                new SelectionPrompt<string>()
+                    .Title("[blue]Select Category[/]")
+                    .AddChoices(categoryChoices)
+                    .WrapAround(true));
+
+            if (selectedCategory == backOption) return (null, 0);
+
+            var choices = items
+                .FindAll(i => i.Category == selectedCategory)
+                .Select(i => $"{i.Id}. {i.Name} — ${i.Price:F2}")
+                .ToList();
+
+            choices.Insert(0, backOption);
+
+            var selected = AnsiConsole.Prompt(
+                new SelectionPrompt<string>()
+                    .Title("Select an [green]item[/] to add:")
+                    .AddChoices(choices)
+                    .WrapAround(true));
+
+            if (selected == backOption) continue;
+
+            var id = int.Parse(selected.Split('.')[0]);
+            var menuItem = items.First(i => i.Id == id);
+
+            var quantity = AnsiConsole.Prompt(
+                new TextPrompt<int>("How many?")
+                    .DefaultValue(1)
+                    .ValidationErrorMessage("[red]Please enter a valid number[/]")
+                    .Validate(q => q > 0
+                        ? ValidationResult.Success()
+                        : ValidationResult.Error("[red]Quantity must be at least 1[/]")));
+
+            return (menuItem, quantity);
+        }
     }
 }

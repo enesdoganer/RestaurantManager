@@ -1,5 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using RestaurantManager.Core.Models;
+using RestaurantManager.Core.Services;
 
 namespace RestaurantManager.Core.Data;
 
@@ -20,6 +21,7 @@ public class DbContext : Microsoft.EntityFrameworkCore.DbContext
         {
             e.HasKey(t => t.Id);
             e.Property(t => t.Id).ValueGeneratedNever();
+            e.Property(t => t.Seats);
         });
 
         // MenuItem
@@ -28,6 +30,12 @@ public class DbContext : Microsoft.EntityFrameworkCore.DbContext
             e.HasKey(m => m.Id);
             e.Property(m => m.Id).ValueGeneratedNever();
             e.Property(m => m.Price).HasColumnType("numeric(10,2)");
+            e.Property(m => m.Ingredients)
+                .HasConversion(
+                    i => i == null ? null : string.Join(',', i),
+                    i => i == null
+                        ? new List<string>() 
+                        : i.Split(',', StringSplitOptions.RemoveEmptyEntries).Select(a => a.Trim()).ToList());
             e.Property(m => m.Allergens)
                 .HasConversion(
                     v => string.Join(',', v.Select(a => a.ToString())),
@@ -63,4 +71,14 @@ public class DbContext : Microsoft.EntityFrameworkCore.DbContext
                 .HasForeignKey(oi => oi.MenuItemId);
         });
     }
+}
+
+public static class QueryExtensions 
+{
+    public static IQueryable<MenuItem> AsSorted(this IQueryable<MenuItem> query) 
+        => query.OrderBy(t => t.Id);
+    public static IQueryable<Table> AsSorted(this IQueryable<Table> query) 
+        => query.OrderBy(t => t.Id);
+    public static IQueryable<Order> AsSorted(this IQueryable<Order> query) 
+        => query.OrderBy(t => t.Id);
 }

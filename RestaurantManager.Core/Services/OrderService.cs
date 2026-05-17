@@ -1,4 +1,5 @@
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Query;
 using RestaurantManager.Core.Data;
 using RestaurantManager.Core.Models;
 using DbContext = RestaurantManager.Core.Data.DbContext;
@@ -75,10 +76,19 @@ public class OrderService
             .FirstOrDefault(o => o.Id == table.ActiveOrderId);
     }
 
-    public List<Order> GetActiveOrders() =>
+    private IIncludableQueryable<Order, MenuItem> GetOrders() =>
         _context.Orders
             .Include(o => o.Items)
-            .ThenInclude(i => i.MenuItem)
+            .ThenInclude(i => i.MenuItem);
+
+    public List<Order> GetActiveOrders() =>
+        GetOrders()
             .Where(o => o.Status != OrderStatus.Paid)
+            .AsSorted()
+            .ToList();
+    
+    public List<Order> GetPastOrders() =>
+        GetOrders()
+            .Where(o => o.Status == OrderStatus.Paid)
             .ToList();
 }

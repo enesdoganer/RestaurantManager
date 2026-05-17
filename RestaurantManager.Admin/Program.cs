@@ -1,5 +1,4 @@
-﻿using System.Diagnostics;
-using RestaurantManager.Core.Data;
+﻿using RestaurantManager.Core.Data;
 using RestaurantManager.Core.Services;
 using RestaurantManager.Core.Models;
 using RestaurantManager.Admin.Views;
@@ -49,9 +48,11 @@ while (running)
             .AddChoices(
                 "New Order",
                 "Manage Existing Order",
-                "View All Active Orders",
                 "View Menu",
-                "Exit"));
+                "View Active Orders",
+                "View Past Orders",
+                "Exit")
+            .WrapAround(true));
 
     switch (choice)
     {
@@ -62,15 +63,24 @@ while (running)
         case "Manage Existing Order":
             HandleManageOrder();
             break;
-
-        case "View All Active Orders":
-            OrderView.RenderAllOrders(orderService.GetActiveOrders());
+        
+        case "View Menu":
+            AnsiConsole.Clear();
+            MenuView.Render(menuService.GetAllItems());
             AnsiConsole.MarkupLine("[grey]Press any key to go back...[/]");
             Console.ReadKey();
             break;
 
-        case "View Menu":
-            MenuView.Render(menuService.GetAllItems());
+        case "View Active Orders":
+            AnsiConsole.Clear();
+            OrderView.RenderAllOrders(orderService.GetActiveOrders());
+            AnsiConsole.MarkupLine("[grey]Press any key to go back...[/]");
+            Console.ReadKey();
+            break;
+        
+        case "View Past Orders":
+            AnsiConsole.Clear();
+            OrderView.RenderAllOrders(orderService.GetPastOrders());
             AnsiConsole.MarkupLine("[grey]Press any key to go back...[/]");
             Console.ReadKey();
             break;
@@ -85,6 +95,8 @@ while (running)
 // New Order handler:
 void HandleNewOrder()
 {
+    AnsiConsole.Clear();
+    
     var freeTables = tableService.GetAllTables().Where(t => t.Available).ToList();
 
     if (freeTables.Count == 0)
@@ -96,7 +108,13 @@ void HandleNewOrder()
     }
 
     var tableId = DashboardView.PromptTableSelection(freeTables);
-    var order = orderService.CreateOrder(tableId);
+    if (tableId == null)
+    {
+        AnsiConsole.MarkupLine("[red]Going back...[/]");
+        return;
+    }
+
+    var order = orderService.CreateOrder(tableId.Value);
 
     HandleOrderItems(order);
 }
@@ -104,6 +122,8 @@ void HandleNewOrder()
 // Manage Order handler:
 void HandleManageOrder()
 {
+    AnsiConsole.Clear();
+    
     var occupiedTables = tableService.GetAllTables().Where(t => !t.Available).ToList();
 
     if (occupiedTables.Count == 0)
@@ -115,7 +135,13 @@ void HandleManageOrder()
     }
 
     var tableId = DashboardView.PromptTableSelection(occupiedTables);
-    var order = orderService.GetActiveOrder(tableId);
+    if (tableId == null)
+    {
+        AnsiConsole.MarkupLine("[red]Going back...[/]");
+        return;
+    }
+
+    var order = orderService.GetActiveOrder(tableId.Value);
 
     if (order == null)
     {
@@ -145,48 +171,75 @@ void HandleOrderItems(Order order)
                     "Remove Item",
                     "Update Order Status",
                     "Close & Pay",
-                    "Back to Dashboard"));
+                    "Back to Dashboard")
+                .WrapAround(true));
 
         switch (action)
         {
             case "Add Item":
+                AnsiConsole.Clear();
+                AnsiConsole.MarkupLine($"[bold purple]Order #{order.Id}[/] — Table {order.TableId} — [green]Add Item[/]\n");
                 var (menuItem, quantity) = MenuView.PromptItemSelection(menuService.GetAllItems());
+                if (menuItem == null)
+                {
+                    AnsiConsole.MarkupLine("[red]Going back...[/]");
+                    AnsiConsole.Clear();
+                    break;
+                }
+
                 orderService.AddItem(order, menuItem, quantity);
                 AnsiConsole.MarkupLine($"[green]Added {quantity}x {menuItem.Name}[/]");
                 Thread.Sleep(800);
+                AnsiConsole.Clear();
                 break;
 
             case "Remove Item":
+                AnsiConsole.Clear();
+                AnsiConsole.MarkupLine($"[bold purple]Order #{order.Id}[/] — Table {order.TableId} — [red]Remove Item[/]\n");
+                
                 if (order.Status != OrderStatus.Pending && order.Status != OrderStatus.Preparing)
                 {
                     AnsiConsole.MarkupLine("[red]Can not remove item at this time.[/]");
                     Thread.Sleep(800);
                     break;
                 }
+
                 if (order.Items.Count == 0)
                 {
                     AnsiConsole.MarkupLine("[red]No items to remove.[/]");
                     Thread.Sleep(800);
                     break;
                 }
+                
+                const string backOption = "<- Back";
 
                 var itemChoices = order.Items
                     .Select(i => $"{i.MenuItem.Name} x{i.Quantity}")
                     .ToList();
 
+                itemChoices.Insert(0, backOption);
+                
                 var selectedItem = AnsiConsole.Prompt(
                     new SelectionPrompt<string>()
                         .Title("Select item to [red]remove[/]:")
-                        .AddChoices(itemChoices));
-
-                var itemName = selectedItem.Split(" x")[0];
-                var itemToRemove = order.Items.First(i => i.MenuItem.Name == itemName);
-                orderService.RemoveItem(order, itemToRemove.MenuItem.Id);
-                AnsiConsole.MarkupLine($"[red]Removed {itemName}[/]");
-                Thread.Sleep(800);
+                        .AddChoices(itemChoices)
+                        .WrapAround(true));
+                
+                if (selectedItem != backOption)
+                {
+                    var itemName = selectedItem.Split(" x")[0];
+                    var itemToRemove = order.Items.First(i => i.MenuItem.Name == itemName);
+                    orderService.RemoveItem(order, itemToRemove.MenuItem.Id);
+                    AnsiConsole.MarkupLine($"[red]Removed {itemName}[/]");
+                    Thread.Sleep(800);
+                    AnsiConsole.Clear();
+                }
                 break;
 
             case "Update Order Status":
+                AnsiConsole.Clear();
+                AnsiConsole.MarkupLine($"[bold purple]Order #{order.Id}[/] — Table {order.TableId} — [yellow]Update Order Status[/]\n");
+                
                 var newStatus = AnsiConsole.Prompt(
                     new SelectionPrompt<OrderStatus>()
                         .Title("Select new [yellow]status[/]:")
@@ -198,9 +251,13 @@ void HandleOrderItems(Order order)
                 orderService.UpdateStatus(order, newStatus);
                 AnsiConsole.MarkupLine($"[green]Status updated to {newStatus}[/]");
                 Thread.Sleep(800);
+                AnsiConsole.Clear();
                 break;
 
             case "Close & Pay":
+                AnsiConsole.Clear();
+                AnsiConsole.MarkupLine($"[bold purple]Order #{order.Id}[/] — Table {order.TableId} — [red]Close & Pay[/]\n");
+                
                 OrderView.Render(order);
                 AnsiConsole.MarkupLine($"[bold]Final total: [green]${order.TotalPrice:F2}[/][/]");
 
@@ -214,6 +271,7 @@ void HandleOrderItems(Order order)
                     Thread.Sleep(1000);
                     managing = false;
                 }
+
                 break;
 
             case "Back to Dashboard":
@@ -221,4 +279,4 @@ void HandleOrderItems(Order order)
                 break;
         }
     }
-}       
+}

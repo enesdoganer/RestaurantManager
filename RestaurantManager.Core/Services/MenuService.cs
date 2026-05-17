@@ -13,7 +13,7 @@ public class MenuService
     }
 
     public List<MenuItem> GetAllItems() =>
-        _context.MenuItems.ToList();
+        _context.MenuItems.AsSorted().ToList();
 
     public List<string> GetCategories() =>
         _context.MenuItems.Select(m => m.Category).Distinct().ToList();
