@@ -28,7 +28,7 @@ public class DbContext : Microsoft.EntityFrameworkCore.DbContext
         modelBuilder.Entity<MenuItem>(e =>
         {
             e.HasKey(m => m.Id);
-            e.Property(m => m.Id).ValueGeneratedNever();
+            e.Property(m => m.Id).ValueGeneratedOnAdd();
             e.Property(m => m.Price).HasColumnType("numeric(10,2)");
             e.Property(m => m.Ingredients)
                 .HasConversion(
