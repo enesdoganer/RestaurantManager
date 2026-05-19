@@ -3,6 +3,7 @@ namespace RestaurantManager.Core.Models;
 public class MenuItem
 {
     public int Id { get; init; }
+    public int ItemNumber { get; set; }
     public string Name { get; set; }
     public List<String>? Ingredients { get; set; }
     public List<Allergen>? Allergens { get; set; }
@@ -11,9 +12,8 @@ public class MenuItem
     
     public MenuItem() { }
 
-    public MenuItem(int id, string name, List<String> ingredients, List<Allergen> allergens, decimal price, string category)
+    public MenuItem(string name, List<String> ingredients, List<Allergen> allergens, decimal price, string category)
     {
-        Id = id;
         Name = name;
         Ingredients = ingredients;
         Allergens = allergens;

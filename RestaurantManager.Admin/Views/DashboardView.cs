@@ -4,7 +4,7 @@ using Table = RestaurantManager.Core.Models.Table;
 
 namespace RestaurantManager.Admin.Views;
 
-public class DashboardView
+public static class DashboardView
 {
     public static void Render(List<Table> tables)
     {
@@ -30,7 +30,7 @@ public class DashboardView
                 : "[grey] - [/]";
 
             table.AddRow(
-                $"Table {t.Id}",
+                $"Table {t.TableNumber}",
                 t.Seats.ToString(),
                 status,
                 orderId
@@ -46,7 +46,7 @@ public class DashboardView
         const string backOption = "<- Back";
         
         var choices = tables
-            .Select(t => $"Table {t.Id} ({t.Seats} seats) - {(t.Available ? "Free" : "Occupied")}")
+            .Select(t => $"Table {t.TableNumber} ({t.Seats} seats) - {(t.Available ? "Free" : "Occupied")}")
             .ToList();
         choices.Insert(0, backOption);
 

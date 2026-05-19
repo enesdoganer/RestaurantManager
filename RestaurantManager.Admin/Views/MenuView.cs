@@ -36,7 +36,7 @@ public class MenuView
                     : "[grey] - [/]";
 
                 table.AddRow(
-                    $"[deepskyblue1]{i.Id.ToString()}[/]",
+                    $"[deepskyblue1]{i.ItemNumber.ToString()}[/]",
                     i.Name,
                     ingredients,
                     allergens,
@@ -72,7 +72,7 @@ public class MenuView
 
             var choices = items
                 .FindAll(i => i.Category == selectedCategory)
-                .Select(i => $"{i.Id}. {i.Name} — ${i.Price:F2}")
+                .Select(i => $"{i.ItemNumber}. {i.Name} — ${i.Price:F2}")
                 .ToList();
 
             choices.Insert(0, backOption);
@@ -85,8 +85,8 @@ public class MenuView
 
             if (selected == backOption) continue;
 
-            var id = int.Parse(selected.Split('.')[0]);
-            var menuItem = items.First(i => i.Id == id);
+            var itemNumber = int.Parse(selected.Split('.')[0]);
+            var menuItem = items.First(i => i.ItemNumber == itemNumber);
 
             var quantity = AnsiConsole.Prompt(
                 new TextPrompt<int>("How many?")

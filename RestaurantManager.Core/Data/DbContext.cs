@@ -20,7 +20,8 @@ public class DbContext : Microsoft.EntityFrameworkCore.DbContext
         modelBuilder.Entity<Table>(e =>
         {
             e.HasKey(t => t.Id);
-            e.Property(t => t.Id).ValueGeneratedNever();
+            e.Property(t => t.Id).ValueGeneratedOnAdd();
+            e.Property(t => t.TableNumber).ValueGeneratedOnAdd();
             e.Property(t => t.Seats);
         });
 
@@ -29,6 +30,7 @@ public class DbContext : Microsoft.EntityFrameworkCore.DbContext
         {
             e.HasKey(m => m.Id);
             e.Property(m => m.Id).ValueGeneratedOnAdd();
+            e.Property(m => m.ItemNumber).ValueGeneratedOnAdd();
             e.Property(m => m.Price).HasColumnType("numeric(10,2)");
             e.Property(m => m.Ingredients)
                 .HasConversion(

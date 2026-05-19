@@ -23,4 +23,39 @@ public class MenuService
 
     public MenuItem? GetById(int id) =>
         _context.MenuItems.FirstOrDefault(m => m.Id == id);
+
+    public void AddItem(MenuItem item)
+    {
+        _context.MenuItems.Add(item);
+        _context.SaveChanges();
+        RenumberItems();
+    }
+
+    public void UpdateItem(MenuItem item)
+    {
+        _context.MenuItems.Update(item);
+        _context.SaveChanges();
+    }
+
+    public void RemoveItem(MenuItem item)
+    {
+        _context.MenuItems.Remove(item);
+        _context.SaveChanges();
+        RenumberItems();
+    }
+    
+    public void RenumberItems()
+    {
+        var items = _context.MenuItems
+            .OrderBy(t => t.Id)
+            .ToList();
+
+        int number = 1;
+        foreach (var item in items)
+        {
+            item.ItemNumber = number++;
+        }
+        
+        _context.SaveChanges();
+    }
 }

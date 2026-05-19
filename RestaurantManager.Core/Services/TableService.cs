@@ -35,4 +35,39 @@ public class TableService
         table.ActiveOrderId = null;
         _context.SaveChanges();
     }
+
+    public void AddTable(Table table)
+    {
+        _context.Tables.Add(table);
+        _context.SaveChanges();
+        RenumberTables();
+    }
+
+    public void UpdateTable(Table table)
+    {
+        _context.Tables.Update(table);
+        _context.SaveChanges();
+    }
+
+    public void RemoveTable(Table table)
+    {
+        _context.Tables.Remove(table);
+        _context.SaveChanges();
+        RenumberTables();
+    }
+
+    public void RenumberTables()
+    {
+        var tables = _context.Tables
+            .OrderBy(t => t.Id)
+            .ToList();
+
+        int number = 1;
+        foreach (var table in tables)
+        {
+            table.TableNumber = number++;
+        }
+        
+        _context.SaveChanges();
+    }
 }
