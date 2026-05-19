@@ -55,7 +55,7 @@ public class DbContext : Microsoft.EntityFrameworkCore.DbContext
                 .HasConversion<DateTime>(
                     v => v.ToUniversalTime(),
                     v => DateTime.SpecifyKind(v, DateTimeKind.Utc));
-            e.HasOne<Table>()
+            e.HasOne(o => o.Table)
                 .WithMany()
                 .HasForeignKey(o => o.TableId);
             e.HasMany(o => o.Items)

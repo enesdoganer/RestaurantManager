@@ -7,6 +7,7 @@ public class Order
 {
     public int Id { get; init; }
     public int TableId { get; init; }
+    public Table? Table { get; set; }
     public List<OrderItem> Items { get; set; } = new List<OrderItem>();
     public DateTime CreatedAt { get; init; } = DateTime.Now;
     public OrderStatus Status { get; set; } = OrderStatus.Pending;

@@ -71,6 +71,7 @@ public class OrderService
         if (table?.ActiveOrderId == null) return null;
 
         return _context.Orders
+            .Include(o => o.Table)
             .Include(o => o.Items)
             .ThenInclude(i => i.MenuItem)
             .FirstOrDefault(o => o.Id == table.ActiveOrderId);
@@ -78,6 +79,7 @@ public class OrderService
 
     private IIncludableQueryable<Order, MenuItem> GetOrders() =>
         _context.Orders
+            .Include(o => o.Table)
             .Include(o => o.Items)
             .ThenInclude(i => i.MenuItem);
 

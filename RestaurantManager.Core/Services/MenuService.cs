@@ -46,8 +46,12 @@ public class MenuService
     
     public void RenumberItems()
     {
+        var categoryOrder = new List<string> { "Starters", "Mains", "Desserts", "Drinks" };
+        
         var items = _context.MenuItems
-            .OrderBy(t => t.Id)
+            .ToList()
+            .OrderBy(i => categoryOrder.IndexOf(i.Category))
+            .ThenBy(i => i.Id)
             .ToList();
 
         int number = 1;

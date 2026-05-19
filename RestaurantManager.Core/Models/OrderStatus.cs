@@ -6,7 +6,8 @@ namespace RestaurantManager.Core.Models;
  * Pending      -> 0
  * Preparing    -> 1
  * Served       -> 2
- * Paid         -> 3
+ * BillRequested-> 3
+ * Paid         -> 4
  * 
  */
 
@@ -15,5 +16,6 @@ public enum OrderStatus
     Pending,
     Preparing,
     Served,
+    BillRequested,
     Paid
 }

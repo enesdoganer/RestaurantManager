@@ -4,6 +4,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RestaurantManager.Core", "R
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RestaurantManager.Admin", "RestaurantManager.Admin\RestaurantManager.Admin.csproj", "{16F8643B-961A-478D-8B5E-710B539366DE}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RestaurantManager.Customer", "RestaurantManager.Customer\RestaurantManager.Customer.csproj", "{89111FA9-F60B-4935-936F-AB1AA6BB743D}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -18,5 +20,9 @@ Global
 		{16F8643B-961A-478D-8B5E-710B539366DE}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{16F8643B-961A-478D-8B5E-710B539366DE}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{16F8643B-961A-478D-8B5E-710B539366DE}.Release|Any CPU.Build.0 = Release|Any CPU
+		{89111FA9-F60B-4935-936F-AB1AA6BB743D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{89111FA9-F60B-4935-936F-AB1AA6BB743D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{89111FA9-F60B-4935-936F-AB1AA6BB743D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{89111FA9-F60B-4935-936F-AB1AA6BB743D}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal

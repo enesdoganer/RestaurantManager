@@ -150,7 +150,8 @@ public class OrderHandler
             backOption,
             nameof(OrderStatus.Pending),
             nameof(OrderStatus.Preparing),
-            nameof(OrderStatus.Served)
+            nameof(OrderStatus.Served),
+            nameof(OrderStatus.BillRequested)
         };
 
         var selected = AnsiConsole.Prompt(
