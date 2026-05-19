@@ -1,7 +1,5 @@
-RestaurantManager.Admin/obj
-RestaurantManager.Admin/bin
-RestaurantManager.Core/obj
-RestaurantManager.Core/bin
+**/obj
+**/bin
 **/appsettings.json
 /packages/
 riderModule.iml
