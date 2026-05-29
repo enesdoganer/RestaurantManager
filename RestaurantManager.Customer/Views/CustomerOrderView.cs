@@ -4,7 +4,7 @@ using SpectreTable = Spectre.Console.Table;
 
 namespace RestaurantManager.Customer.Views;
 
-public static class OrderView
+public static class CustomerOrderView
 {
     public static void Render(Order order)
     {

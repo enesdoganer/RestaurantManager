@@ -1,17 +1,18 @@
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
 using RestaurantManager.Admin.Handlers;
 using RestaurantManager.Admin.Views;
 using RestaurantManager.Core.Data;
 using RestaurantManager.Core.Services;
 using Spectre.Console;
+using DbContext = RestaurantManager.Core.Data.DbContext;
 
 namespace RestaurantManager.Admin;
 
 public class App
 {
-    private readonly TableService _tableService;
-    private readonly MenuService _menuService;
-    private readonly OrderService _orderService;
+    private readonly IServiceProvider _serviceProvider;
 
     public App()
     {
@@ -27,18 +28,22 @@ public class App
         var tokenHash = config["Auth:TokenHash"]
                         ?? throw new Exception("Token hash not found.");
         AuthService.Initialize(tokenHash);
-
-        // Create db and create the tables if they do not exist:
-        var db = DbContextFactory.Create(connectionString);
+        
+        // Initialize services:
+        _serviceProvider = new ServiceCollection()
+            .AddDbContext<DbContext>(options =>
+                    options.UseNpgsql(connectionString),
+                ServiceLifetime.Scoped)
+            .AddScoped<TableService>()
+            .AddScoped<MenuService>()
+            .AddScoped<OrderService>()
+            .BuildServiceProvider();
+        
+        // Database setup:
+        using var setupScope = _serviceProvider.CreateScope();
+        var db = setupScope.ServiceProvider.GetRequiredService<DbContext>();
         db.Database.EnsureCreated();
-
-        // Seed initial data
         DbSeeder.Seed(db);
-
-        // Services
-        _tableService = new TableService(db);
-        _menuService = new MenuService(db);
-        _orderService = new OrderService(db, _tableService);
     }
 
     public void Run()
@@ -47,16 +52,16 @@ public class App
         
         ShowSplashScreen();
         
-        var tableHandler = new TableHandler(_tableService, _menuService, _orderService);
-        var menuHandler = new MenuHandler(_menuService);
-        var orderHandler = new OrderHandler(_orderService);
-        var tableManagementHandler = new TableManagementHandler(_tableService);
+        var locator = new ServiceLocator(_serviceProvider);
 
-        bool running = true;
-
-        while (running)
+        while (true)
         {
-            DashboardView.Render(_tableService.GetAllTables());
+            var tableHandler = new TableHandler(locator);
+            var menuHandler = new MenuHandler(locator);
+            var orderHandler = new OrderHandler(locator);
+            var tableManagementHandler = new TableManagementHandler(locator);
+            
+            DashboardView.Render(locator.GetTableService().GetAllTables());
 
             var choice = AnsiConsole.Prompt(
                 new SelectionPrompt<string>()
@@ -92,9 +97,9 @@ public class App
                     tableManagementHandler.Handle();
                     break;
                 case "Exit":
-                    running = false;
                     AnsiConsole.MarkupLine("[grey]Goodbye![/]");
-                    break;
+                    Thread.Sleep(1000);
+                    return;
             }
         }
         
@@ -128,7 +133,7 @@ public class App
         return false;
     }
 
-    public void ShowSplashScreen()
+    private static void ShowSplashScreen()
     {
         AnsiConsole.Clear();
         AnsiConsole.Write(

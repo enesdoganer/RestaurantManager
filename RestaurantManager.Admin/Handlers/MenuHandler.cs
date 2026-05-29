@@ -7,13 +7,13 @@ namespace RestaurantManager.Admin.Handlers;
 
 public class MenuHandler
 {
-    private readonly MenuService _menuService;
-    
-    private const string BackOption = "<- Back";
+    private readonly ServiceLocator _locator;
 
-    public MenuHandler(MenuService menuService)
+    private const String BackOption = "<- Back";
+
+    public MenuHandler(ServiceLocator locator)
     {
-        _menuService = menuService;
+        _locator = locator;
     }
 
     public void HandleViewMenu()
@@ -22,7 +22,7 @@ public class MenuHandler
         while (inMenu)
         {
             AnsiConsole.Clear();
-            MenuView.Render(_menuService.GetAllItems());
+            MenuView.Render(_locator.GetMenuService().GetAllItems());
 
             var action = AnsiConsole.Prompt(
                 new SelectionPrompt<string>()
@@ -139,7 +139,7 @@ public class MenuHandler
         if (price.ToString() == backCommand) return;
 
         var newItem = new MenuItem(name, ingredients, allergens, price, category);
-        _menuService.AddItem(newItem);
+        _locator.GetMenuService().AddItem(newItem);
 
         AnsiConsole.MarkupLine($"[green]'{Markup.Escape(name)}' added to the menu.[/]");
         Thread.Sleep(1000);
@@ -150,7 +150,7 @@ public class MenuHandler
         AnsiConsole.Clear();
         AnsiConsole.MarkupLine("[bold purple]Edit Menu Item[/]\n");
         
-        var items = _menuService.GetAllItems();
+        var items = _locator.GetMenuService().GetAllItems();
 
         var choices = items
             .Select(i => $"{i.Id}. {i.Name} — ${i.Price:F2}")
@@ -236,7 +236,7 @@ public class MenuHandler
                     break;
 
                 case "Save & Exit":
-                    _menuService.UpdateItem(item);
+                    _locator.GetMenuService().UpdateItem(item);
                     AnsiConsole.MarkupLine($"[green]'{Markup.Escape(item.Name)}' saved.[/]");
                     Thread.Sleep(1000);
                     return;
@@ -252,7 +252,7 @@ public class MenuHandler
         AnsiConsole.Clear();
         AnsiConsole.MarkupLine("[bold purple]Remove Menu Item[/]\n");
         
-        var items = _menuService.GetAllItems();
+        var items = _locator.GetMenuService().GetAllItems();
 
         var choices = items
             .Select(i => $"{i.Id}. {i.Name} — ${i.Price:F2}")
@@ -275,7 +275,7 @@ public class MenuHandler
 
         if (!confirm) return;
 
-        _menuService.RemoveItem(item);
+        _locator.GetMenuService().RemoveItem(item);
         AnsiConsole.MarkupLine($"[red]'{Markup.Escape(item.Name)}' removed from the menu.[/]");
         Thread.Sleep(1000);
     }

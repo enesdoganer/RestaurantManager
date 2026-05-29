@@ -1,5 +1,7 @@
+using Microsoft.EntityFrameworkCore;
 using RestaurantManager.Core.Data;
 using RestaurantManager.Core.Models;
+using DbContext = RestaurantManager.Core.Data.DbContext;
 
 namespace RestaurantManager.Core.Services;
 
@@ -13,16 +15,28 @@ public class MenuService
     }
 
     public List<MenuItem> GetAllItems() =>
-        _context.MenuItems.AsSorted().ToList();
+        _context.MenuItems
+            .AsNoTracking()
+            .AsSorted()
+            .ToList();
 
     public List<string> GetCategories() =>
-        _context.MenuItems.Select(m => m.Category).Distinct().ToList();
+        _context.MenuItems
+            .AsNoTracking()
+            .Select(m => m.Category)
+            .Distinct()
+            .ToList();
 
     public List<MenuItem> GetByCategory(string category) =>
-        _context.MenuItems.Where(m => m.Category == category).ToList();
+        _context.MenuItems
+            .AsNoTracking()
+            .Where(m => m.Category == category)
+            .ToList();
 
     public MenuItem? GetById(int id) =>
-        _context.MenuItems.FirstOrDefault(m => m.Id == id);
+        _context.MenuItems
+            .AsNoTracking()
+            .FirstOrDefault(m => m.Id == id);
 
     public void AddItem(MenuItem item)
     {

@@ -4,7 +4,7 @@ using Table = RestaurantManager.Core.Models.Table;
 
 namespace RestaurantManager.Customer.Views;
 
-public static class TableView
+public static class CustomerTableView
 {
     public static int? PromptTableSelection(List<Table> tables)
     {

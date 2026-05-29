@@ -6,23 +6,19 @@ namespace RestaurantManager.Admin.Handlers;
 
 public class TableHandler
 {
-    private readonly TableService _tableService;
-    private readonly MenuService _menuService;
-    private readonly OrderService _orderService;
+    private readonly ServiceLocator _locator;
     
-    public TableHandler(TableService tableService, MenuService menuService, OrderService orderService)
+    public TableHandler(ServiceLocator locator)
     {
-        _tableService = tableService;
-        _menuService = menuService;
-        _orderService = orderService;
+        _locator = locator;
     }
     
     // New Order handler:
     public void HandleNewOrder()
     {
         AnsiConsole.Clear();
-    
-        var freeTables = _tableService.GetAllTables().Where(t => t.Available).ToList();
+        var tableService = _locator.GetTableService();
+        var freeTables = tableService.GetAllTables().Where(t => t.Available).ToList();
 
         if (freeTables.Count == 0)
         {
@@ -32,16 +28,18 @@ public class TableHandler
             return;
         }
 
-        var tableId = DashboardView.PromptTableSelection(freeTables);
-        if (tableId == null)
+        var tableNumber = DashboardView.PromptTableSelection(freeTables);
+        if (tableNumber == null)
         {
             AnsiConsole.MarkupLine("[red]Going back...[/]");
             Thread.Sleep(800);
             return;
         }
-
-        var order = _orderService.CreateOrder(tableId.Value);
-        var orderHandler = new OrderHandler(_orderService, _menuService);
+        
+        var table = freeTables.First(t => t.TableNumber == tableNumber);
+        var order = _locator.GetOrderService().CreateOrder(table.Id);
+        
+        var orderHandler = new OrderHandler(_locator);
         orderHandler.HandleOrderItems(order);
     }
     
@@ -49,8 +47,8 @@ public class TableHandler
     public void HandleManageOrder()
     {
         AnsiConsole.Clear();
-    
-        var occupiedTables = _tableService.GetAllTables().Where(t => !t.Available).ToList();
+        var tableService = _locator.GetTableService();
+        var occupiedTables = tableService.GetAllTables().Where(t => !t.Available).ToList();
 
         if (occupiedTables.Count == 0)
         {
@@ -60,14 +58,15 @@ public class TableHandler
             return;
         }
 
-        var tableId = DashboardView.PromptTableSelection(occupiedTables);
-        if (tableId == null)
+        var tableNumber = DashboardView.PromptTableSelection(occupiedTables);
+        if (tableNumber == null)
         {
             AnsiConsole.MarkupLine("[red]Going back...[/]");
             return;
         }
-
-        var order = _orderService.GetActiveOrder(tableId.Value);
+        
+        var table = occupiedTables.First(t => t.TableNumber == tableNumber);
+        var order = _locator.GetOrderService().GetActiveOrder(table.Id);
 
         if (order == null)
         {
@@ -77,7 +76,7 @@ public class TableHandler
             return;
         }
     
-        var orderHandler = new OrderHandler(_orderService, _menuService);
+        var orderHandler = new OrderHandler(_locator);
         orderHandler.HandleOrderItems(order);
     }
     

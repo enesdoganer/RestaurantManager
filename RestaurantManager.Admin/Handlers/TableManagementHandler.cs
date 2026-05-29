@@ -8,13 +8,13 @@ namespace RestaurantManager.Admin.Handlers;
 
 public class TableManagementHandler
 {
-    private readonly TableService _tableService;
+    private readonly ServiceLocator _locator;
 
     private const String BackOption = "<- Back";
 
-    public TableManagementHandler(TableService tableService)
+    public TableManagementHandler(ServiceLocator locator)
     {
-        _tableService = tableService;
+        _locator = locator;
     }
 
     public void Handle()
@@ -24,7 +24,7 @@ public class TableManagementHandler
         while (inMenu)
         {
             AnsiConsole.Clear();
-            DashboardView.Render(_tableService.GetAllTables());
+            DashboardView.Render(_locator.GetTableService().GetAllTables());
 
             var action = AnsiConsole.Prompt(
                 new SelectionPrompt<string>()
@@ -55,7 +55,7 @@ public class TableManagementHandler
         while (inManage)
         {
             AnsiConsole.Clear();
-            DashboardView.Render(_tableService.GetAllTables());
+            DashboardView.Render(_locator.GetTableService().GetAllTables());
             AnsiConsole.MarkupLine("[bold purple]Table Management[/]\n");
 
             var action = AnsiConsole.Prompt(
@@ -110,9 +110,9 @@ public class TableManagementHandler
                 .AddChoices(2, 4, 6, 8)
                 .WrapAround(true));
 
-        var nextTableNumber = _tableService.GetAllTables().Max(t => t.TableNumber) + 1;
+        var nextTableNumber = _locator.GetTableService().GetAllTables().Max(t => t.TableNumber) + 1;
         var newTable = new Table(seats);
-        _tableService.AddTable(newTable);
+        _locator.GetTableService().AddTable(newTable);
 
         AnsiConsole.MarkupLine($"[green]Table {nextTableNumber} with {seats} seats added.[/]");
         Thread.Sleep(1000);
@@ -123,7 +123,7 @@ public class TableManagementHandler
         AnsiConsole.Clear();
         AnsiConsole.MarkupLine("[bold purple]Edit Table[/]\n");
         
-        var tables = _tableService.GetAllTables();
+        var tables = _locator.GetTableService().GetAllTables();
 
         var choices = tables
             .Select(t => $"Table {t.TableNumber} ({t.Seats} seats) — {(t.Available ? "Free" : "Occupied")}")
@@ -179,7 +179,7 @@ public class TableManagementHandler
                     break;
 
                 case "Save & Exit":
-                    _tableService.UpdateTable(table);
+                    _locator.GetTableService().UpdateTable(table);
                     AnsiConsole.MarkupLine($"[green]Table {table.TableNumber} updated.[/]");
                     Thread.Sleep(1000);
                     return;
@@ -193,7 +193,7 @@ public class TableManagementHandler
         AnsiConsole.Clear();
         AnsiConsole.MarkupLine("[bold purple]Remove Table[/]\n");
         
-        var tables = _tableService.GetAllTables();
+        var tables = _locator.GetTableService().GetAllTables();
 
         var choices = tables
             .Select(t => $"Table {t.TableNumber} ({t.Seats} seats) — {(t.Available ? "Free" : "Occupied")}")
@@ -223,7 +223,7 @@ public class TableManagementHandler
 
         if (!confirm) return;
 
-        _tableService.RemoveTable(table);
+        _locator.GetTableService().RemoveTable(table);
         AnsiConsole.MarkupLine($"[red]Table {table.Id} removed.[/]");
         Thread.Sleep(1000);
     }

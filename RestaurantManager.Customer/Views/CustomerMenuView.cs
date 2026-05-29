@@ -4,7 +4,7 @@ using SpectreTable = Spectre.Console.Table;
 
 namespace RestaurantManager.Customer.Views;
 
-public static class MenuView
+public static class CustomerMenuView
 {
     public static void Render(List<MenuItem> items)
     {

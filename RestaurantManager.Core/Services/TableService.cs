@@ -14,11 +14,18 @@ public class TableService
         _context = context;
     }
 
-    public List<Table> GetAllTables() =>
-        _context.Tables.AsSorted().ToList();
+    public List<Table> GetAllTables()
+    {
+        return _context.Tables
+            .AsNoTracking()
+            .AsSorted()
+            .ToList();
+    }
 
     public Table? GetById(int id) =>
-        _context.Tables.FirstOrDefault(t => t.Id == id);
+        _context.Tables
+            .AsNoTracking()
+            .FirstOrDefault(t => t.Id == id);
 
     public void SetOccupied(int tableId, int orderId)
     {
@@ -67,7 +74,7 @@ public class TableService
         {
             table.TableNumber = number++;
         }
-        
+
         _context.SaveChanges();
     }
 }

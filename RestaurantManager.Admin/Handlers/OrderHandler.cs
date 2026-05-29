@@ -7,21 +7,19 @@ namespace RestaurantManager.Admin.Handlers;
 
 public class OrderHandler
 {
-    private readonly OrderService _orderService;
-    private readonly MenuService? _menuService;
+    private readonly ServiceLocator _locator;
     
-    private const String backOption = "<- Back";
+    private const String BackOption = "<- Back";
 
-    public OrderHandler(OrderService orderService, MenuService? menuService = null)
+    public OrderHandler(ServiceLocator locator)
     {
-        _orderService = orderService;
-        _menuService = menuService;
+        _locator = locator;
     }
 
     public void HandleViewActiveOrders()
     {
         AnsiConsole.Clear();
-        OrderView.RenderAllOrders(_orderService.GetActiveOrders());
+        OrderView.RenderAllOrders(_locator.GetOrderService().GetActiveOrders());
         AnsiConsole.MarkupLine("[grey]Press any key to go back...[/]");
         Console.ReadKey();
     }
@@ -29,7 +27,7 @@ public class OrderHandler
     public void HandleViewPastOrders()
     {
         AnsiConsole.Clear();
-        OrderView.RenderAllOrders(_orderService.GetPastOrders());
+        OrderView.RenderAllOrders(_locator.GetOrderService().GetPastOrders());
         AnsiConsole.MarkupLine("[grey]Press any key to go back...[/]");
         Console.ReadKey();
     }
@@ -65,6 +63,7 @@ public class OrderHandler
 
                 case "Update Order Status":
                     HandleUpdateStatus(order);
+                    continue;
                     break;
 
                 case "Close & Pay":
@@ -83,7 +82,7 @@ public class OrderHandler
         AnsiConsole.Clear();
         AnsiConsole.MarkupLine(
             $"[bold purple]Order #{order.Id}[/] — Table {order.TableId} — [green]Add Item[/]\n");
-        var (menuItem, quantity) = MenuView.PromptItemSelection(_menuService!.GetAllItems());
+        var (menuItem, quantity) = MenuView.PromptItemSelection(_locator.GetMenuService()!.GetAllItems());
         if (menuItem == null)
         {
             AnsiConsole.MarkupLine("[red]Going back...[/]");
@@ -92,7 +91,7 @@ public class OrderHandler
             return;
         }
 
-        _orderService.AddItem(order, menuItem, quantity);
+        _locator.GetOrderService().AddItem(order, menuItem, quantity);
         AnsiConsole.MarkupLine($"[green]Added {quantity}x {menuItem.Name}[/]");
         Thread.Sleep(800);
         AnsiConsole.Clear();
@@ -121,7 +120,7 @@ public class OrderHandler
         var itemChoices = order.Items
             .Select(i => $"{i.MenuItem.Name} x{i.Quantity}")
             .ToList();
-        itemChoices.Insert(0, backOption);
+        itemChoices.Insert(0, BackOption);
 
         var selectedItem = AnsiConsole.Prompt(
             new SelectionPrompt<string>()
@@ -129,11 +128,11 @@ public class OrderHandler
                 .AddChoices(itemChoices)
                 .WrapAround(true));
 
-        if (selectedItem == backOption) return;
+        if (selectedItem == BackOption) return;
 
         var itemName = selectedItem.Split(" x")[0];
         var itemToRemove = order.Items.First(i => i.MenuItem.Name == itemName);
-        _orderService.RemoveItem(order, itemToRemove.MenuItem.Id);
+        _locator.GetOrderService().RemoveItem(order, itemToRemove.MenuItem.Id);
         AnsiConsole.MarkupLine($"[red]Removed {Markup.Escape(itemName)}[/]");
         Thread.Sleep(800);
         AnsiConsole.Clear();
@@ -147,7 +146,7 @@ public class OrderHandler
         
         var choices = new List<string>
         {
-            backOption,
+            BackOption,
             nameof(OrderStatus.Pending),
             nameof(OrderStatus.Preparing),
             nameof(OrderStatus.Served),
@@ -160,10 +159,10 @@ public class OrderHandler
                 .AddChoices(choices)
                 .WrapAround(true));
         
-        if (selected == backOption) return;
+        if (selected == BackOption) return;
         
         var newStatus = Enum.Parse<OrderStatus>(selected);
-        _orderService.UpdateStatus(order, newStatus);
+        _locator.GetOrderService().UpdateStatus(order, newStatus);
         AnsiConsole.MarkupLine($"[green]Status updated to {newStatus}[/]");
         Thread.Sleep(800);
         AnsiConsole.Clear();
@@ -188,7 +187,7 @@ public class OrderHandler
             return false;
         }
 
-        _orderService.CloseOrder(order);
+        _locator.GetOrderService().CloseOrder(order);
         AnsiConsole.MarkupLine("[green]Order closed. Table is now free.[/]");
         Thread.Sleep(1000);
         AnsiConsole.Clear();
