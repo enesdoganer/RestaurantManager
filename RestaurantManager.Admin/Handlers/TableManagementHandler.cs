@@ -63,9 +63,9 @@ public class TableManagementHandler
                     .Title("Select an action:")
                     .AddChoices(
                         BackOption,
-                        "Add Menu Item",
-                        "Edit Menu Item",
-                        "Remove Menu Item")
+                        "Add Table",
+                        "Edit Table",
+                        "Remove Table")
                     .WrapAround(true));
 
             switch (action)
@@ -74,15 +74,15 @@ public class TableManagementHandler
                     inManage = false;
                     break;
                 
-                case "Add Menu Item":
+                case "Add Table":
                     HandleAddTable();
                     break;
                 
-                case "Edit Menu Item":
+                case "Edit Table":
                     HandleEditTable();
                     break;
                 
-                case "Remove Menu Item":
+                case "Remove Table":
                     HandleRemoveTable();
                     break;
             }
